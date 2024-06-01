@@ -84,56 +84,106 @@ class State implements Cloneable {
     }
 
     public boolean isGoal(char agent) {
-        String find = String.valueOf(agent).repeat(4);
-
-        // Check rows
-        for (char[] row : this.board) {
-            if (new String(row).contains(find)) {
-                return true;
-            }
-        }
-
-        // Check columns
-        for (int j = 0; j < this.cols; j++) {
-            StringBuilder col = new StringBuilder();
-            for (int i = 0; i < this.rows; i++) {
-                col.append(this.board[i][j]);
-            }
-            if (col.toString().contains(find)) {
-                return true;
-            }
-        }
-
-        // Check diagonals
-        return checkDiagonals(find);
+        double utilityValue = utilityFunction(agent);
+        return Math.abs(utilityValue) == 4.0;
     }
 
-    private boolean checkDiagonals(String find) {
-        for (int i = 0; i <= this.rows - 4; i++) {
-            for (int j = 0; j <= this.cols - 4; j++) {
-                if (checkDiagonal(find, i, j, 1, 1) || checkDiagonal(find, i, j + 3, 1, -1)) {
-                    return true;
+    public double utilityFunction(char agent) {
+
+        double rowsEval = evaluateRows(agent);
+        double colsEval = evaluateColumns(agent);
+        double diagEval = evaluateDiagonals(agent);
+
+        return agent == 'W' ? Math.max(Math.max(rowsEval, colsEval), diagEval)
+                : Math.min(Math.min(rowsEval, colsEval), diagEval);
+
+    }
+
+    public double evaluateRows(char agent) {
+
+        double maximumEvaluation = 0;
+
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j <= cols - 4; j++) {
+                char[] sequence = Arrays.copyOfRange(board[i], j, j + 4);
+                int positionsCurrentPlayer = countOccurrences(sequence, agent);
+                int positionsNextPlayer = countOccurrences(sequence, agent == 'W' ? 'B' : 'W');
+
+                if (positionsNextPlayer == 0) {
+                    maximumEvaluation = Math.max(maximumEvaluation, positionsCurrentPlayer);
                 }
             }
         }
-        return false;
+
+        return agent == 'W' ? maximumEvaluation : -maximumEvaluation;
     }
 
-    private boolean checkDiagonal(String find, int startX, int startY, int dx, int dy) {
-        StringBuilder diag = new StringBuilder();
-        for (int x = startX, y = startY; x < this.rows && y < this.cols && y >= 0; x += dx, y += dy) {
-            diag.append(this.board[x][y]);
+    public double evaluateColumns(char agent) {
+        double maximumEvaluation = 0;
+
+        for (int j = 0; j < cols; j++) {
+            for (int i = 0; i <= rows - 4; i++) {
+                char[] sequence = new char[4];
+                for (int k = 0; k < 4; k++) {
+                    sequence[k] = board[i + k][j];
+                }
+                int positionsCurrentPlayer = countOccurrences(sequence, agent);
+                int positionsNextPlayer = countOccurrences(sequence, agent == 'W' ? 'B' : 'W');
+
+                if (positionsNextPlayer == 0) {
+                    maximumEvaluation = Math.max(maximumEvaluation, positionsCurrentPlayer);
+                }
+            }
         }
-        return diag.toString().contains(find);
+
+        return agent == 'W' ? maximumEvaluation : -maximumEvaluation;
     }
 
-    public double evaluationFunction() {
-        if (this.isGoal('W')) {
-            return 1000.0;
+    public double evaluateDiagonals(char agent) {
+        double maximumEvaluation = 0;
+
+        // Evaluate diagonals from top-left to bottom-right
+        for (int i = 0; i <= rows - 4; i++) {
+            for (int j = 0; j <= cols - 4; j++) {
+                char[] sequence = new char[4];
+                for (int k = 0; k < 4; k++) {
+                    sequence[k] = board[i + k][j + k];
+                }
+                int positionsCurrentPlayer = countOccurrences(sequence, agent);
+                int positionsNextPlayer = countOccurrences(sequence, agent == 'W' ? 'B' : 'W');
+
+                if (positionsNextPlayer == 0) {
+                    maximumEvaluation = Math.max(maximumEvaluation, positionsCurrentPlayer);
+                }
+            }
         }
-        if (this.isGoal('B')) {
-            return -1000.0;
+
+        // Evaluate diagonals from top-right to bottom-left
+        for (int i = 0; i <= rows - 4; i++) {
+            for (int j = 3; j < cols; j++) {
+                char[] sequence = new char[4];
+                for (int k = 0; k < 4; k++) {
+                    sequence[k] = board[i + k][j - k];
+                }
+                int positionsCurrentPlayer = countOccurrences(sequence, agent);
+                int positionsNextPlayer = countOccurrences(sequence, agent == 'W' ? 'B' : 'W');
+
+                if (positionsNextPlayer == 0) {
+                    maximumEvaluation = Math.max(maximumEvaluation, positionsCurrentPlayer);
+                }
+            }
         }
-        return 0.0;
+
+        return agent == 'W' ? maximumEvaluation : -maximumEvaluation;
+    }
+
+    public int countOccurrences(char[] row, char target) {
+        int count = 0;
+        for (int i = 0; i < row.length; i++) {
+            if (row[i] == target) {
+                count++;
+            }
+        }
+        return count;
     }
 }
