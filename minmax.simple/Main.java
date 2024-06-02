@@ -11,8 +11,6 @@ public class Main {
         Minimax minimaxAgent = new Minimax(depth);
         State state = new State(6, 7);
 
-        long startTime = System.currentTimeMillis(); // Start time measurement
-
         while (true) {
             // White player's move
             Point whiteMove = minimaxAgent.getMove(state, true);
@@ -44,11 +42,6 @@ public class Main {
                 break;
             }
         }
-        long endTime = System.currentTimeMillis(); // End time measurement
-
         scanner.close();
-
-        System.out.println("Time taken: " + (endTime - startTime) + " ms");
-        System.out.printf("Expanded nodes: %d%n", minimaxAgent.expandedNodes);
     }
 }

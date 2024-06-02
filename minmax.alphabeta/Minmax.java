@@ -50,7 +50,7 @@ class Minimax {
             double newValue = maxValue(state.generateSuccessor('B', action), depth - 1, alpha, beta);
             if (newValue < value) {
                 value = newValue;
-                bestMove = action; // Only update bestMove at the root level
+                bestMove = action;
             }
             if (value <= alpha) {
                 return value;

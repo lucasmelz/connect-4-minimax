@@ -21,7 +21,7 @@ class Minimax {
     private double maxValue(State state, int depth) throws CloneNotSupportedException {
         expandedNodes++;
         if (depth == 0) {
-            return state.utilityFunction('W');
+            return state.utilityFunction();
         }
 
         double value = Double.NEGATIVE_INFINITY;
@@ -38,7 +38,7 @@ class Minimax {
     private double minValue(State state, int depth) throws CloneNotSupportedException {
         expandedNodes++;
         if (depth == 0) {
-            return state.utilityFunction('B');
+            return state.utilityFunction();
         }
 
         double value = Double.POSITIVE_INFINITY;
@@ -46,7 +46,6 @@ class Minimax {
             double newValue = maxValue(state.generateSuccessor('B', action), depth - 1);
             if (newValue < value) {
                 value = newValue;
-                bestMove = action;
             }
         }
         return value;

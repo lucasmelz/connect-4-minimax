@@ -44,11 +44,11 @@ public class Main {
                 break;
             }
         }
-        long endTime = System.currentTimeMillis(); // End time measurement
 
-        scanner.close();
+        long endTime = System.currentTimeMillis(); // End time measurement
 
         System.out.println("Time taken: " + (endTime - startTime) + " ms");
         System.out.printf("Expanded nodes: %d%n", minimaxAgent.expandedNodes);
+        scanner.close();
     }
 }
